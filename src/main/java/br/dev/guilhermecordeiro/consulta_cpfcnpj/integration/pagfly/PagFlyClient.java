@@ -100,7 +100,7 @@ public class PagFlyClient extends FlowProcessing {
 
     private PagFlyCreateTransactionRequestDTO generateRequest(RequestContext o) {
         return PagFlyCreateTransactionRequestDTO.builder()
-                .paymentMethod("PIX")
+                .paymentMethod("pix")
                 .customer(Customer.builder()
                         .name(o.getName())
                         .email(o.getEmail())
