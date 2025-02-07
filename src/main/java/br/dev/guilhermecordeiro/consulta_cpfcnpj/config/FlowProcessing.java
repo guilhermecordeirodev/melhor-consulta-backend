@@ -1,19 +1,18 @@
 package br.dev.guilhermecordeiro.consulta_cpfcnpj.config;
 
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.RequestContext;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.OrderEntity;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.PaymentEntity;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.PagFlyCreateTransactionResponseDTO;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 @Service
 public abstract class FlowProcessing {
 
-    public Mono<Object> generatePayment(RequestContext requestContext) {
+    public Mono generatePayment(RequestContext requestContext) {
         return Mono.zip(createOrder(requestContext),
-                        generatePaymentMethod(requestContext)
-                                .flatMap(this::createPayment))
-                .map(Tuple2::getT2);
+                        generatePaymentMethod(requestContext)).flatMap(t -> createPayment((OrderEntity) t.getT1(), t.getT2()));
     }
 
     public <O> O searchData(String orderId) {
@@ -27,17 +26,17 @@ public abstract class FlowProcessing {
         return null;
     }
 
-    public abstract Mono<Object> generatePaymentMethod(Object o);
+    public abstract Mono<PagFlyCreateTransactionResponseDTO> generatePaymentMethod(RequestContext o);
 
     public abstract Mono<Object> createOrder(RequestContext dto);
 
-    abstract <O> Object pay(RequestContext requestContext);
+    protected abstract <O> Object pay(RequestContext requestContext);
 
-    abstract void save();
+    protected abstract void save();
 
-    public abstract Mono<PaymentEntity> createPayment(Object payment);
+    public abstract Mono<PaymentEntity> createPayment(OrderEntity order, Object response);
 
-    abstract void get();
+    protected abstract void get();
 
-    abstract void bereau();
+    protected abstract void bereau();
 }

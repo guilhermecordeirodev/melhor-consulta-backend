@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public abstract class OrderService extends FlowProcessing {
+public class OrderService {
 
     @Autowired
     private OrderRepository repository;
@@ -19,7 +19,6 @@ public abstract class OrderService extends FlowProcessing {
     @Autowired
     private PersonRepository personRepository;
 
-    @Override
     public Mono<Object> createOrder(RequestContext dto) {
         return personRepository.save(PersonEntity.builder()
                 .email(dto.getEmail())

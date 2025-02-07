@@ -1,7 +1,6 @@
 package br.dev.guilhermecordeiro.consulta_cpfcnpj.controllers;
 
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.config.FlowProcessing;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.OrderRequestDTO;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.RequestContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +19,7 @@ public class FlowController {
     private final FlowProcessing flowProcessing;
 
     @PostMapping("/generate-payment")
-    public Mono<Object> generatePayment(@RequestBody RequestContext requestContext) {
+    public Mono generatePayment(@RequestBody RequestContext requestContext) {
         return flowProcessing.generatePayment(requestContext);
     }
 
