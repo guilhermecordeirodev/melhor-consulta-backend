@@ -15,4 +15,8 @@ public class PaymentService {
     public Mono<PaymentEntity> createPayment(PaymentEntity payment) {
         return paymentRepository.save(payment);
     }
+
+    public Mono<PaymentEntity> getPaymentByTransactionId(String id) {
+        return paymentRepository.findByTrasactionId(id);
+    }
 }

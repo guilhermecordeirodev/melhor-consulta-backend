@@ -35,4 +35,12 @@ public class OrderService {
                 );
     }
 
+    public Mono<OrderEntity> getOrderById(String id) {
+        return repository.findById(id);
+    }
+
+    public Mono<OrderEntity> saveOrder(OrderEntity order) {
+        return repository.save(order);
+    }
+
 }

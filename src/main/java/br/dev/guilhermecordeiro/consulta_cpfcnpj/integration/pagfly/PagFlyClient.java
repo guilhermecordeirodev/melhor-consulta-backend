@@ -62,16 +62,6 @@ public class PagFlyClient extends FlowProcessing {
     }
 
     @Override
-    protected <O> Object pay(RequestContext requestContext) {
-        return null;
-    }
-
-    @Override
-    protected void save() {
-
-    }
-
-    @Override
     public Mono<PaymentEntity> createPayment(OrderEntity order, Object response) {
 
         PagFlyCreateTransactionResponseDTO responseDTO = objectMapper
@@ -89,13 +79,29 @@ public class PagFlyClient extends FlowProcessing {
     }
 
     @Override
-    protected void get() {
-
+    public Mono<PaymentEntity> updatePayment(String id) {
+        return paymentService.getPaymentByTransactionId(id).flatMap(e -> {
+            e.setStatus("payed");
+            e.setPaidAt(LocalDateTime.now());
+            return paymentService.createPayment(e);
+        });
     }
 
     @Override
-    protected void bereau() {
+    public Mono<OrderEntity> updateOrder(String id) {
+        return orderService.getOrderById(id).flatMap(orderEntity -> {
+            orderEntity.setStatus("payed");
+            return orderService.saveOrder(orderEntity);
+        });
+    }
 
+    @Override
+    public void callback(Object callback) {
+        PagFlyWebhookDTO dto = objectMapper.convertValue(callback, PagFlyWebhookDTO.class);
+        PaymentEntity paymentEntity = updatePayment(dto.getData().getSecureId()).block();
+        if (paymentEntity != null) {
+            updateOrder(paymentEntity.getOrder().getId()).block();
+        }
     }
 
     private PagFlyCreateTransactionRequestDTO generateRequest(RequestContext o) {

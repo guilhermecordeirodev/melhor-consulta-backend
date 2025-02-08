@@ -16,13 +16,6 @@ public abstract class FlowProcessing {
     }
 
     public <O> O searchData(String orderId) {
-        System.out.println("Processando consulta...");
-        get();
-        boolean naoExiste = true;
-        if (naoExiste) {
-            bereau();
-            save();
-        }
         return null;
     }
 
@@ -30,13 +23,12 @@ public abstract class FlowProcessing {
 
     public abstract Mono<Object> createOrder(RequestContext dto);
 
-    protected abstract <O> Object pay(RequestContext requestContext);
-
-    protected abstract void save();
-
     public abstract Mono<PaymentEntity> createPayment(OrderEntity order, Object response);
 
-    protected abstract void get();
+    public abstract Mono<PaymentEntity> updatePayment(String id);
 
-    protected abstract void bereau();
+    public abstract Mono<OrderEntity> updateOrder(String id);
+
+    public abstract void callback(Object callback);
+
 }
