@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface PaymentRepository extends ReactiveMongoRepository<PaymentEntity, String> {
-    Mono<PaymentEntity> findByTrasactionId(String id);
+    Mono<PaymentEntity> findByTransactionId(String id);
 }

@@ -1,20 +1,26 @@
 package br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly;
 
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.config.FlowProcessing;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.config.interfaces.WebClientInterface;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.RequestContext;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.OrderEntity;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.PaymentEntity;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.ProductEntity;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.UserEntity;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.enums.StatusOrder;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Customer;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Document;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Item;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Pix;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.ProductRepository;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.OrderService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
@@ -27,13 +33,17 @@ import java.time.LocalDateTime;
 public class PagFlyClient extends FlowProcessing {
 
     @Autowired
-    private WebClientInterface webClient;
+    private WebClient webClient;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private OrderService orderService;
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Value("${pag-fly.base-url}")
     private String baseUrl;
@@ -52,8 +62,15 @@ public class PagFlyClient extends FlowProcessing {
 
     @Override
     public Mono<PagFlyCreateTransactionResponseDTO> generatePaymentMethod(RequestContext o) {
-        return webClient.post(baseUrl, "/transactions", getDefaultHeaders(), generateRequest(o))
-                .map(r -> objectMapper.convertValue(r, PagFlyCreateTransactionResponseDTO.class));
+        return generateRequest(o) // Mono<PagFlyCreateTransactionRequestDTO>
+                .flatMap(requestBody -> webClient.post()
+                        .uri(baseUrl + "/transactions")
+                        .headers(httpHeaders ->
+                                getDefaultHeaders().forEach((key, value) -> httpHeaders.put(key, List.of(value))))
+                        .body(BodyInserters.fromValue(requestBody))
+                        .retrieve()
+                        .bodyToMono(PagFlyCreateTransactionResponseDTO.class)
+                );
     }
 
     @Override
@@ -69,63 +86,73 @@ public class PagFlyClient extends FlowProcessing {
 
         return paymentService.createPayment(PaymentEntity.builder()
                 .createdAt(LocalDateTime.now())
-                .person(order.getPerson())
+                .orderId(order.getId())
                 .status(responseDTO.getStatus())
-                .order(order)
                 .paymentMethod(responseDTO.getPaymentMethod())
                 .qrCode(responseDTO.getPix().getQrcode())
-                .trasactionId(responseDTO.getSecureId())
+                .transactionId(responseDTO.getSecureId())
                 .build());
     }
 
     @Override
     public Mono<PaymentEntity> updatePayment(String id) {
-        return paymentService.getPaymentByTransactionId(id).flatMap(e -> {
-            e.setStatus("payed");
-            e.setPaidAt(LocalDateTime.now());
-            return paymentService.createPayment(e);
-        });
+        System.out.println(id);
+        return paymentService.getPaymentByTransactionId(id)
+                .doOnNext(e -> System.out.println("🔍 Pagamento encontrado: " + e)) // Verifica se o pagamento foi encontrado
+                .flatMap(e -> {
+                    e.setStatus("payed");
+                    e.setPaidAt(LocalDateTime.now());
+                    return paymentService.createPayment(e);
+                })
+                .doOnSuccess(e -> System.out.println("✅ Pagamento atualizado: " + e))
+                .switchIfEmpty(Mono.error(new RuntimeException("❌ Pagamento não encontrado!")));
     }
 
     @Override
     public Mono<OrderEntity> updateOrder(String id) {
         return orderService.getOrderById(id).flatMap(orderEntity -> {
-            orderEntity.setStatus("payed");
+            orderEntity.setStatus(StatusOrder.PAGO);
             return orderService.saveOrder(orderEntity);
         });
     }
 
     @Override
-    public void callback(Object callback) {
+    public Mono<OrderEntity> callback(Object callback) {
         PagFlyWebhookDTO dto = objectMapper.convertValue(callback, PagFlyWebhookDTO.class);
-        PaymentEntity paymentEntity = updatePayment(dto.getData().getSecureId()).block();
-        if (paymentEntity != null) {
-            updateOrder(paymentEntity.getOrder().getId()).block();
-        }
+        return updatePayment(dto.getData().getSecureId()).flatMap(p -> updateOrder(p.getOrderId()));
     }
 
-    private PagFlyCreateTransactionRequestDTO generateRequest(RequestContext o) {
-        return PagFlyCreateTransactionRequestDTO.builder()
-                .paymentMethod("pix")
-                .customer(Customer.builder()
-                        .name(o.getName())
-                        .email(o.getEmail())
-                        .document(Document.builder()
-                                .type("cpf")
-                                .number(o.getFederalId())
-                                .build())
-                        .build())
-                .amount(o.getAmount().longValue() * 100)
-                .installments("1")
-                .pix(Pix.builder()
-                        .expireInDays(1)
-                        .build())
-                .items(List.of(Item.builder()
-                        .title("Consulta CPF")
-                        .quantity(1)
-                        .unitPrice(o.getAmount().longValue() * 100)
-                        .build()))
-                .build();
+    private Mono<PagFlyCreateTransactionRequestDTO> generateRequest(RequestContext o) {
+        return Mono.zip(
+                userRepository.findById(o.getUserId()),
+                productRepository.findById(o.getProductId())
+        ).map(objects -> {
+            UserEntity user = objects.getT1();
+            ProductEntity product = objects.getT2();
+            long value = product.getValue().longValue() * 100;
+
+            return PagFlyCreateTransactionRequestDTO.builder()
+                    .paymentMethod("pix")
+                    .customer(Customer.builder()
+                        .name(user.getName())
+                        .email(user.getEmail())
+                            .document(Document.builder()
+                                    .type("cpf")
+                                    .number("11111111111")
+                                    .build())
+                            .build())
+                    .amount(value)
+                    .installments("1")
+                    .pix(Pix.builder()
+                            .expireInDays(1)
+                            .build())
+                    .items(List.of(Item.builder()
+                            .title(product.getName())
+                            .quantity(1)
+                            .unitPrice(value)
+                            .build()))
+                    .build();
+        });
     }
 
 }

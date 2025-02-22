@@ -2,6 +2,7 @@ package br.dev.guilhermecordeiro.consulta_cpfcnpj.controllers;
 
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.config.FlowProcessing;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.RequestContext;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.OrderEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,7 @@ public class FlowController {
     }
 
     @PostMapping("/callback")
-    public void callbackPayment(@RequestBody Object dto) {
-        flowProcessing.callback(dto);
+    public Mono<OrderEntity> callbackPayment(@RequestBody Object dto) {
+        return flowProcessing.callback(dto);
     }
 }

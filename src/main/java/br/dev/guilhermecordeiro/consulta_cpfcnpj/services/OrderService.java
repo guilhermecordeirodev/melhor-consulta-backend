@@ -1,11 +1,12 @@
 package br.dev.guilhermecordeiro.consulta_cpfcnpj.services;
 
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.config.FlowProcessing;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.dto.RequestContext;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.OrderEntity;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.PersonEntity;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.enums.StatusOrder;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.OrderRepository;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.PersonRepository;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.ProductRepository;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserProductRepository;
+import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -17,22 +18,19 @@ public class OrderService {
     private OrderRepository repository;
 
     @Autowired
-    private PersonRepository personRepository;
+    private UserRepository userRepository;
+    @Autowired
+    private UserProductRepository userProductRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     public Mono<Object> createOrder(RequestContext dto) {
-        return personRepository.save(PersonEntity.builder()
-                .email(dto.getEmail())
-                .federalId(dto.getFederalId())
-                .name(dto.getName())
-                .build())
-                .flatMap(personEntity -> repository
-                        .save(OrderEntity.builder()
-                                .federalIdRequest(dto.getFederalIdRequest())
-                                .person(personEntity)
-                                .amount(dto.getAmount())
-                                .status("PENDENTE")
-                                .build())
-                );
+        return productRepository.findById(dto.getProductId()).flatMap(productEntity -> repository.save(OrderEntity.builder()
+                        .amount(productEntity.getValue())
+                        .status(StatusOrder.PENDENTE)
+                        .federalIdRequest(dto.getFederalId())
+                        .userId(dto.getUserId())
+                .build()));
     }
 
     public Mono<OrderEntity> getOrderById(String id) {
@@ -41,6 +39,10 @@ public class OrderService {
 
     public Mono<OrderEntity> saveOrder(OrderEntity order) {
         return repository.save(order);
+    }
+
+    public Mono<OrderEntity> getOrderByPaymentId(String id) {
+        return repository.findByPaymentId(id);
     }
 
 }

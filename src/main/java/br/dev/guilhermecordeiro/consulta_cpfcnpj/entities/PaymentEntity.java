@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -27,14 +28,13 @@ public class PaymentEntity {
 
     private LocalDateTime paidAt;
 
-    private String trasactionId;
+    private String transactionId;
 
-    @DocumentReference(lazy = true)
-    private PersonEntity person;
-
-    @DocumentReference(lazy = true)
-    private OrderEntity order;
+    private String orderId;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }

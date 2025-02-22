@@ -11,8 +11,8 @@ import reactor.core.publisher.Mono;
 public abstract class FlowProcessing {
 
     public Mono generatePayment(RequestContext requestContext) {
-        return Mono.zip(createOrder(requestContext),
-                        generatePaymentMethod(requestContext)).flatMap(t -> createPayment((OrderEntity) t.getT1(), t.getT2()));
+        return Mono.zip(createOrder(requestContext), generatePaymentMethod(requestContext))
+                .flatMap(t -> createPayment((OrderEntity) t.getT1(), t.getT2()));
     }
 
     public <O> O searchData(String orderId) {
@@ -29,6 +29,6 @@ public abstract class FlowProcessing {
 
     public abstract Mono<OrderEntity> updateOrder(String id);
 
-    public abstract void callback(Object callback);
+    public abstract Mono<OrderEntity> callback(Object callback);
 
 }

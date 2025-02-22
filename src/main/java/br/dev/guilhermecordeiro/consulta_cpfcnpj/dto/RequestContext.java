@@ -6,9 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class RequestContext {
-    private String name;
     private String federalId;
-    private String email;
-    private String federalIdRequest;
-    private BigDecimal amount;
+    private String productId;
+    private String userId;
 }

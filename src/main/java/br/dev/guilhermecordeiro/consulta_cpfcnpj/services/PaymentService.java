@@ -17,6 +17,7 @@ public class PaymentService {
     }
 
     public Mono<PaymentEntity> getPaymentByTransactionId(String id) {
-        return paymentRepository.findByTrasactionId(id);
+        System.out.println(id);
+        return paymentRepository.findByTransactionId(id);
     }
 }

@@ -16,11 +16,17 @@ public class WebClientInterfaceImpl implements WebClientInterface {
     WebClient webClient;
 
     @Override
-    public Mono<Object> get(String baseUrl, String path, Map<String, String> headers) {
-        return webClient.get().uri(baseUrl + path)
+    public Mono<Object> get(String baseUrl, String path, String params, Map<String, String> headers) {
+        return webClient.get().uri(baseUrl.concat(path).concat(params))
                 .headers(httpHeaders -> headers.forEach((key, value) -> httpHeaders.put(key, List.of(value))))
                 .retrieve()
                 .bodyToMono(Object.class);
+    }
+
+    @Override
+    public WebClient.ResponseSpec getRetrieve(String baseUrl, String path, String params) {
+        return webClient.get().uri(baseUrl.concat(path).concat(params))
+                .retrieve();
     }
 
     @Override
