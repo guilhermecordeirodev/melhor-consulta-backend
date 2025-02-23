@@ -13,35 +13,44 @@ jobs:
     name: Build and push Docker Images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Garante que todo o histórico Git seja clonado
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.io  # Certifique-se de usar o correto (Docker Hub)
+          username: ${{ secrets.DOCKER_USERNAME }}  # Alterado para usar credencial segura
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Criar um Secret no GitHub Actions
 
-      - name: Build and push
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Build and push Docker Image
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: true
-          no-cache: true
+          no-cache: false  # Cache ativado para acelerar builds
           platforms: linux/amd64,linux/arm64
           context: .
           file: ./Dockerfile
           tags: |
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:latest
+            docker.io/${{ secrets.DOCKER_USERNAME }}/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
+            docker.io/${{ secrets.DOCKER_USERNAME }}/melhorconsulta-api:latest
 
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Show Image Digest
+        run: echo "Image digest: ${{ steps.docker_build.outputs.digest }}"
