@@ -17,10 +17,6 @@ jobs:
         with:
           fetch-depth: 0  # Garante que todo o histórico Git seja clonado
 
-      # Listar o conteúdo do diretório target para confirmar que o arquivo está presente
-      - name: Listar conteúdo do diretório target
-        run: ls -la target/
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       
