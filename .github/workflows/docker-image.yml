@@ -26,10 +26,6 @@ jobs:
       
       - name: Login to DockerHub
         uses: docker/login-action@v2
-        with:
-          registry: docker.io  # Certifique-se de usar o correto (Docker Hub)
-          username: ${{ secrets.DOCKER_USERNAME }}  # Alterado para usar credencial segura
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Criar um Secret no GitHub Actions
 
       - name: Cache Gradle Dependencies
         uses: actions/cache@v3
