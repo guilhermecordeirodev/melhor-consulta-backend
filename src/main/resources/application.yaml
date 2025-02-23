@@ -21,8 +21,8 @@ spring:
       hibernate.format_sql: true
 
 pag-fly:
-#  base-url: https://api.pagfly.com/v1/
-  base-url: http://localhost:3000
+  base-url: https://api.pagfly.com/v1/
+#  base-url: http://localhost:3000
   private-key: sk_v8dE-WOybSlt1gPOJnLtg7aR0gwmE6B0JnyrH2OVHKsTV2d8
   password: 8257696200Dg#
 
@@ -35,15 +35,15 @@ credlink:
 jwt:
   secret: tfyXcP0A42s+3az8HE+55OmJD4zz80OHRb3VDAhCMcY84pxqJQUhN6QSGQMJQ8nKjX2BJsEhvGj+J4ICQL+IMQ==
 
-logging:
-  level:
-#    org.springframework.security: DEBUG
-#    web: DEBUG
-#    reactor.netty.http.client: DEBUG
-    org:
-      springframework:
-        data:
-          mongodb:
-            core: DEBUG
-      mongodb:
-        driver: DEBUG
+#logging:
+#  level:
+##    org.springframework.security: DEBUG
+##    web: DEBUG
+##    reactor.netty.http.client: DEBUG
+#    org:
+#      springframework:
+#        data:
+#          mongodb:
+#            core: DEBUG
+#      mongodb:
+#        driver: DEBUG

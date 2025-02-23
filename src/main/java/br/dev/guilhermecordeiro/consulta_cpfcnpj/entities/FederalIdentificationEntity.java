@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class FederalIdentificationEntity {
     @Id
     private String id;
+    @Indexed
     private String cpfCnpj;
     private String nome;
     private String email;
@@ -35,7 +37,7 @@ public class FederalIdentificationEntity {
     private String quantidadeEmpresas;
     private String constaObito;
 
-    private Document dados;
+    private String dados;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -62,7 +64,7 @@ public class FederalIdentificationEntity {
             this.paisNascimento = ccf619.getPaisNascimento();
             this.nomeMae = ccf619.getNomeMae();
             this.nomePai = ccf619.getNomePai();
-            this.constaObito = credilink.getObito() != null ? "Sim" : "Não";
+            this.constaObito = credilink.getObito().size() > 0 ? "Sim" : "Não";
         }
 
         // Dados de telefone

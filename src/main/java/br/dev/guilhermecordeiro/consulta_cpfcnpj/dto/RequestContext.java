@@ -9,4 +9,5 @@ public class RequestContext {
     private String federalId;
     private String productId;
     private String userId;
+    private String cpf;
 }

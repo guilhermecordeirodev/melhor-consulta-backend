@@ -4,6 +4,7 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.FederalIdentificationE
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.CredlinkClient;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.FederalIdentificationRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.utils.StringMasker;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,8 @@ public class SearchCPFService implements Function<String, Mono<FederalIdentifica
     private CredlinkClient client;
     @Autowired
     private FederalIdentificationRepository federalIdentificationRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public Mono<FederalIdentificationEntity> apply(String cpf) {
@@ -24,12 +27,24 @@ public class SearchCPFService implements Function<String, Mono<FederalIdentifica
     }
 
     private Mono<FederalIdentificationEntity> buscarRegistro(String cpf) {
-        return federalIdentificationRepository.findByCpfCnpj(cpf).switchIfEmpty(
-                client.consultarCpf(cpf).flatMap(response -> {
-                    FederalIdentificationEntity federalIdentificationEntity = new FederalIdentificationEntity();
-                    federalIdentificationEntity.setDadosFromResponse(response);
-                    return federalIdentificationRepository.save(federalIdentificationEntity);
-                })
-        );
+        System.out.println(cpf);
+        return federalIdentificationRepository.findByCpfCnpj(cpf)
+                .doOnNext(entity -> System.out.println("Registro encontrado no banco: " + entity))
+                .flatMap(Mono::just)
+                .switchIfEmpty(
+                        client.consultarCpf(cpf)
+                                .flatMap(response -> {
+                                    FederalIdentificationEntity entity = new FederalIdentificationEntity();
+                                    entity.setDadosFromResponse(response);
+                                    try {
+                                        String jsonResponse = objectMapper.writeValueAsString(response);
+                                        entity.setDados(jsonResponse);
+                                    } catch (Exception e) {
+                                        System.err.println("Erro ao converter resposta para JSON: " + e.getMessage());
+                                    }
+                                    return federalIdentificationRepository.save(entity);
+                                })
+                                .doOnSuccess(entity -> System.out.println("Novo registro salvo: " + entity))
+                );
     }
 }

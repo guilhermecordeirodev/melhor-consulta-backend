@@ -16,6 +16,7 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.OrderService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.shaded.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -131,14 +132,14 @@ public class PagFlyClient extends FlowProcessing {
             ProductEntity product = objects.getT2();
             long value = product.getValue().longValue() * 100;
 
-            return PagFlyCreateTransactionRequestDTO.builder()
+            PagFlyCreateTransactionRequestDTO dto = PagFlyCreateTransactionRequestDTO.builder()
                     .paymentMethod("pix")
                     .customer(Customer.builder()
                         .name(user.getName())
                         .email(user.getEmail())
                             .document(Document.builder()
                                     .type("cpf")
-                                    .number("11111111111")
+                                    .number(o.getCpf())
                                     .build())
                             .build())
                     .amount(value)
@@ -152,6 +153,8 @@ public class PagFlyClient extends FlowProcessing {
                             .unitPrice(value)
                             .build()))
                     .build();
+            System.out.println(new Gson().toJson(dto));
+            return dto;
         });
     }
 
