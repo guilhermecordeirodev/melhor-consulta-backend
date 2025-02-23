@@ -40,8 +40,8 @@ jobs:
           context: .
           file: ./Dockerfile
           tags: |
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:latest
+            ghcr.io/guilhermecordeiro/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
+            ghcr.io/guilhermecordeiro/melhorconsulta-api:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
