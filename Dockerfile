@@ -24,15 +24,5 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
-CMD ["java",
-     "-XX:+UseContainerSupport",
-     "-XX:MaxRAMPercentage=75.0",
-     "-XX:InitialRAMPercentage=25.0",
-     "-XX:HeapBaseMinAddress=4g",
-     "-Xss512k",
-     "-XX:ParallelGCThreads=2",
-     "-XX:ConcGCThreads=2",
-     "-XX:MaxMetaspaceSize=256m",
-     "-XX:MaxDirectMemorySize=512m",
-     "-XX:+UseG1GC",
-     "-jar", "app.jar"]
+CMD java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=25.0 -XX:HeapBaseMinAddress=4g -Xss512k -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:MaxMetaspaceSize=256m -XX:MaxDirectMemorySize=512m -XX:+UseG1GC -jar /app/app.jar
+
