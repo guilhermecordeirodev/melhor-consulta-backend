@@ -1,14 +1,10 @@
 spring:
   application:
-    name: consulta-cpfcnpj
+    name: melhorconsulta-api
   data:
     mongodb:
-#      authentication-database: admin
-#      password: adminpassword
-#      username: admin
-#      database: consulta-cpf-cnpj
       repositories.type: reactive
-      uri: mongodb+srv://finderFederalIdAdmin:5owYzZMr5La1nBST@finderfederalidcluster.sdaew.mongodb.net/?retryWrites=true&w=majority&appName=FinderFederalIdCluster
+      uri: ${MONGO_URI}
       database: consulta
   security:
     oauth2:
@@ -22,28 +18,14 @@ spring:
 
 pag-fly:
   base-url: https://api.pagfly.com/v1/
-#  base-url: http://localhost:3000
-  private-key: sk_v8dE-WOybSlt1gPOJnLtg7aR0gwmE6B0JnyrH2OVHKsTV2d8
-  password: 8257696200Dg#
+  private-key: ${PAGFLY_PRIVATE_KEY}
+  password: ${PAGFLY_PASSWORD}
 
 credlink:
   base-url: https://consulta.confirmeonline.com.br
-  user: INTLZXSO
-  password: mbM8puBD
-  sigla: RHTBS
+  user: ${CREDLINK_USER}
+  password: ${CREDLINK_PASSWORD}
+  sigla: ${CREDLINK_SIGLA}
 
 jwt:
-  secret: tfyXcP0A42s+3az8HE+55OmJD4zz80OHRb3VDAhCMcY84pxqJQUhN6QSGQMJQ8nKjX2BJsEhvGj+J4ICQL+IMQ==
-
-#logging:
-#  level:
-##    org.springframework.security: DEBUG
-##    web: DEBUG
-##    reactor.netty.http.client: DEBUG
-#    org:
-#      springframework:
-#        data:
-#          mongodb:
-#            core: DEBUG
-#      mongodb:
-#        driver: DEBUG
+  secret: ${JWT_SECRET}
