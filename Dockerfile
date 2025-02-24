@@ -18,10 +18,6 @@ RUN ./gradlew build --no-daemon
 FROM amazoncorretto:17-alpine AS runtime
 WORKDIR /app
 
-# Criar um usuário não-root para maior segurança
-RUN groupadd -g 1001 appgroup && useradd -r -u 1001 -g appgroup appuser
-USER appuser
-
 # Copiar apenas o JAR necessário
 COPY --from=builder /app/build/libs/*.jar app.jar
 
