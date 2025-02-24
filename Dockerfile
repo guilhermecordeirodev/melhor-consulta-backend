@@ -15,7 +15,7 @@ COPY src src
 RUN ./gradlew build --no-daemon
 
 # Etapa 2: Execução da aplicação (imagem final enxuta)
-FROM eclipse-temurin:17-jre AS runtime
+FROM amazoncorretto:17-alpine AS runtime
 WORKDIR /app
 
 # Criar um usuário não-root para maior segurança
