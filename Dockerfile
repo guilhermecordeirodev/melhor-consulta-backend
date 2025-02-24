@@ -14,7 +14,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src ./src
 
 # Compila o projeto sem rodar testes
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew build -x test --no-daemon --max-workers=2
 
 # Etapa 2: Execução do JAR no ambiente final
 FROM eclipse-temurin:17-jdk
