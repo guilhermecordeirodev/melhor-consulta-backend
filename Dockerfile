@@ -6,8 +6,8 @@ WORKDIR /app
 # Copiar arquivos do Gradle primeiro para aproveitar o cache de camadas
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
 COPY src src
 
 # Construir a aplicação
