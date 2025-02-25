@@ -4,7 +4,6 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.CredilinkR
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.ConsultaCCF;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.CredilinkWebService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.Telefone;
-import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -94,8 +93,5 @@ public class FederalIdentificationEntity {
         if (credilink.getDadosSociedades() != null && credilink.getDadosSociedades().getSociedades() != null) {
             this.quantidadeEmpresas = String.valueOf(credilink.getDadosSociedades().getSociedades().size());
         }
-
-        // Armazena o JSON original na base de dados
-//        this.dados = new Document() (new Gson().toJson(response));
     }
 }

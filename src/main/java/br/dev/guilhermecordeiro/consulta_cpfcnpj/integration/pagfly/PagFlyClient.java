@@ -16,7 +16,6 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.OrderService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.shaded.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,11 +23,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
 
 @Service
 public class PagFlyClient extends FlowProcessing {
@@ -132,7 +131,7 @@ public class PagFlyClient extends FlowProcessing {
             ProductEntity product = objects.getT2();
             long value = product.getValue().longValue() * 100;
 
-            PagFlyCreateTransactionRequestDTO dto = PagFlyCreateTransactionRequestDTO.builder()
+            return PagFlyCreateTransactionRequestDTO.builder()
                     .paymentMethod("pix")
                     .customer(Customer.builder()
                         .name(user.getName())
@@ -153,8 +152,6 @@ public class PagFlyClient extends FlowProcessing {
                             .unitPrice(value)
                             .build()))
                     .build();
-            System.out.println(new Gson().toJson(dto));
-            return dto;
         });
     }
 
