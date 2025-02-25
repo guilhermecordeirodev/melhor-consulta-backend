@@ -31,6 +31,9 @@ credlink:
 jwt:
   secret: tfyXcP0A42s+3az8HE+55OmJD4zz80OHRb3VDAhCMcY84pxqJQUhN6QSGQMJQ8nKjX2BJsEhvGj+J4ICQL+IMQ==
 
+server:
+  jvmArguments: "--add-opens java.base/java.time=ALL-UNNAMED"
+
 #logging:
 #  level:
 ##    org.springframework.security: DEBUG

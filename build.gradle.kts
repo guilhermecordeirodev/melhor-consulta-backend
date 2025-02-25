@@ -34,6 +34,8 @@ dependencies {
 	implementation("com.nimbusds:nimbus-jose-jwt:9.37.3") {
 		exclude(group = "com.google.code.gson", module = "gson")
 	}
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.projectlombok:lombok")

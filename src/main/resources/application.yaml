@@ -29,3 +29,6 @@ credlink:
 
 jwt:
   secret: ${JWT_SECRET}
+
+server:
+  jvmArguments: "--add-opens java.base/java.time=ALL-UNNAMED"

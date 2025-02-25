@@ -1,5 +1,5 @@
 # Estágio de construção (Build)
-FROM eclipse-temurin:17-jdk-jammy as builder
+FROM amazoncorretto:17 as builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY src src
 RUN chmod +x gradlew && ./gradlew clean build
 
 # Estágio de runtime
-FROM eclipse-temurin:17-jre-jammy
+FROM amazoncorretto:17
 
 WORKDIR /app
 
