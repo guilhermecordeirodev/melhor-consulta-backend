@@ -16,6 +16,7 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.OrderService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class PagFlyClient extends FlowProcessing {
 
@@ -104,7 +105,6 @@ public class PagFlyClient extends FlowProcessing {
                 .convertValue(response, PagFlyCreateTransactionResponseDTO.class);
 
         return paymentService.createPayment(PaymentEntity.builder()
-                .createdAt(LocalDateTime.now())
                 .orderId(order.getId())
                 .status(responseDTO.getStatus())
                 .paymentMethod(responseDTO.getPaymentMethod())
@@ -115,15 +115,14 @@ public class PagFlyClient extends FlowProcessing {
 
     @Override
     public Mono<PaymentEntity> updatePayment(String id) {
-        System.out.println(id);
         return paymentService.getPaymentByTransactionId(id)
                 .doOnNext(e -> System.out.println("🔍 Pagamento encontrado: " + e)) // Verifica se o pagamento foi encontrado
                 .flatMap(e -> {
                     e.setStatus("payed");
-                    e.setPaidAt(LocalDateTime.now());
                     return paymentService.createPayment(e);
                 })
                 .doOnSuccess(e -> System.out.println("✅ Pagamento atualizado: " + e))
+                .doOnError(e -> System.out.println(e.getMessage()))
                 .switchIfEmpty(Mono.error(new RuntimeException("❌ Pagamento não encontrado!")));
     }
 
@@ -176,10 +175,11 @@ public class PagFlyClient extends FlowProcessing {
 
                 System.out.println(objectMapper.writeValueAsString(r));
                 sink.next(r);
-                } catch (Exception e) {
-                    sink.error(new RuntimeException(e.getMessage()));
-                }
-            });
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                sink.error(e);
+            }
+        });
     }
 
 }

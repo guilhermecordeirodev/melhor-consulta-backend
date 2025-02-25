@@ -6,13 +6,9 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.Credi
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.Telefone;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "federal_identification")
@@ -39,12 +35,6 @@ public class FederalIdentificationEntity {
 
     @JsonIgnore
     private String dados;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     /**
      * Mapeia os dados da API Credilink para a entidade FederalIdentificationEntity

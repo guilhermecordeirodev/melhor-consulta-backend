@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "br.dev.guilhermecordeiro"
-version = "0.0.1-SNAPSHOT"
+version = "1.0.16"
 
 java {
 	toolchain {
@@ -31,9 +31,6 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-	implementation("com.nimbusds:nimbus-jose-jwt:9.37.3") {
-		exclude(group = "com.google.code.gson", module = "gson")
-	}
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0")
 	compileOnly("org.projectlombok:lombok")
