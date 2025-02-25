@@ -151,7 +151,7 @@ public class PagFlyClient extends FlowProcessing {
                 ProductEntity product = objects.getT2();
                 long value = product.getValue().longValue() * 100;
 
-                sink.next(PagFlyCreateTransactionRequestDTO.builder()
+                PagFlyCreateTransactionRequestDTO r = PagFlyCreateTransactionRequestDTO.builder()
                         .paymentMethod("pix")
                         .customer(Customer.builder()
                                 .name(user.getName())
@@ -171,7 +171,11 @@ public class PagFlyClient extends FlowProcessing {
                                 .quantity(1)
                                 .unitPrice(value)
                                 .build()))
-                        .build());
+                        .build();
+
+
+                System.out.println(objectMapper.writeValueAsString(r));
+                sink.next(r);
                 } catch (Exception e) {
                     sink.error(new RuntimeException(e.getMessage()));
                 }
