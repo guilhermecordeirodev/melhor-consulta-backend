@@ -145,33 +145,37 @@ public class PagFlyClient extends FlowProcessing {
         return Mono.zip(
                 userRepository.findById(o.getUserId()),
                 productRepository.findById(o.getProductId())
-        ).map(objects -> {
-            UserEntity user = objects.getT1();
-            ProductEntity product = objects.getT2();
-            long value = product.getValue().longValue() * 100;
+        ).handle((objects, sink) -> {
+            try {
+                UserEntity user = objects.getT1();
+                ProductEntity product = objects.getT2();
+                long value = product.getValue().longValue() * 100;
 
-            return PagFlyCreateTransactionRequestDTO.builder()
-                    .paymentMethod("pix")
-                    .customer(Customer.builder()
-                        .name(user.getName())
-                        .email(user.getEmail())
-                            .document(Document.builder()
-                                    .type("cpf")
-                                    .number("25653915017")
-                                    .build())
-                            .build())
-                    .amount(value)
-                    .installments("1")
-                    .pix(Pix.builder()
-                            .expireInDays(1)
-                            .build())
-                    .items(List.of(Item.builder()
-                            .title(product.getName())
-                            .quantity(1)
-                            .unitPrice(value)
-                            .build()))
-                    .build();
-        });
+                sink.next(PagFlyCreateTransactionRequestDTO.builder()
+                        .paymentMethod("pix")
+                        .customer(Customer.builder()
+                                .name(user.getName())
+                                .email(user.getEmail())
+                                .document(Document.builder()
+                                        .type("cpf")
+                                        .number("25653915017")
+                                        .build())
+                                .build())
+                        .amount(value)
+                        .installments("1")
+                        .pix(Pix.builder()
+                                .expireInDays(1)
+                                .build())
+                        .items(List.of(Item.builder()
+                                .title(product.getName())
+                                .quantity(1)
+                                .unitPrice(value)
+                                .build()))
+                        .build());
+                } catch (Exception e) {
+                    sink.error(new RuntimeException(e.getMessage()));
+                }
+            });
     }
 
 }
