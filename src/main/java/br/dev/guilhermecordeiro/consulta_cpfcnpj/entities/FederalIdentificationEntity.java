@@ -4,6 +4,7 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.CredilinkR
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.ConsultaCCF;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.CredilinkWebService;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos.Telefone;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -36,6 +37,7 @@ public class FederalIdentificationEntity {
     private String quantidadeEmpresas;
     private String constaObito;
 
+    @JsonIgnore
     private String dados;
 
     @CreatedDate

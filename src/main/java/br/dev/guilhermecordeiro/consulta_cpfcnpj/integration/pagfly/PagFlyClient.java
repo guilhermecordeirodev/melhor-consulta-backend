@@ -53,25 +53,44 @@ public class PagFlyClient extends FlowProcessing {
     private String password;
 
     private Map<String, String> getDefaultHeaders() {
+        String credentials = privateKey + ":" + password;
+        String encodedAuth = Base64.getEncoder().encodeToString(credentials.getBytes());
+        System.out.println("🔐 Enviando autenticação: Basic " + encodedAuth);
+
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Basic ".concat(Base64.getEncoder()
-                .encodeToString((privateKey + ":" + password).getBytes())));
+        headers.put("Authorization", "Basic " + encodedAuth);
+        headers.put("Content-Type", "application/json"); // Certifique-se de que este header está presente
 
         return headers;
     }
 
+
     @Override
     public Mono<PagFlyCreateTransactionResponseDTO> generatePaymentMethod(RequestContext o) {
         return generateRequest(o) // Mono<PagFlyCreateTransactionRequestDTO>
+                .doOnNext(requestBody -> {
+                    try {
+                        System.out.println("📤 Enviando request para PagFly: " + objectMapper.writeValueAsString(requestBody));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                })
                 .flatMap(requestBody -> webClient.post()
                         .uri(baseUrl + "/transactions")
-                        .headers(httpHeaders ->
-                                getDefaultHeaders().forEach((key, value) -> httpHeaders.put(key, List.of(value))))
+                        .headers(httpHeaders -> {
+                            Map<String, String> headers = getDefaultHeaders();
+                            headers.forEach((key, value) -> {
+                                System.out.println("📌 Header: " + key + " = " + value);
+                                httpHeaders.put(key, List.of(value));
+                            });
+                        })
                         .body(BodyInserters.fromValue(requestBody))
                         .retrieve()
                         .bodyToMono(PagFlyCreateTransactionResponseDTO.class)
-                );
+                )
+                .doOnError(error -> System.out.println("❌ Erro ao chamar PagFly: " + error.getMessage()));
     }
+
 
     @Override
     public Mono<Object> createOrder(RequestContext dto) {
@@ -138,7 +157,7 @@ public class PagFlyClient extends FlowProcessing {
                         .email(user.getEmail())
                             .document(Document.builder()
                                     .type("cpf")
-                                    .number(o.getCpf())
+                                    .number("25653915017")
                                     .build())
                             .build())
                     .amount(value)
