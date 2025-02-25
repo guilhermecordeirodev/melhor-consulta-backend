@@ -1,29 +1,28 @@
-# Etapa 1: Construção da aplicação (build)
-FROM gradle:8.5-jdk17 AS builder
+# Estágio de construção (Build)
+FROM eclipse-temurin:17-jdk-jammy as builder
+
 WORKDIR /app
 
-# Copiar apenas arquivos necessários para evitar invalidar cache
+# Copiar arquivos do Gradle primeiro para aproveitar o cache de camadas
+COPY gradlew .
 COPY gradle gradle
-COPY build.gradle.kts settings.gradle.kts gradlew ./
-RUN chmod +x gradlew
-
-# Baixar as dependências antes de copiar o código-fonte (cache eficiente)
-RUN ./gradlew dependencies --no-daemon
-
-# Agora copiamos o código-fonte
+COPY build.gradle .
+COPY settings.gradle .
 COPY src src
-RUN ./gradlew build --no-daemon
 
-# Etapa 2: Execução da aplicação (imagem final enxuta)
-FROM amazoncorretto:17-alpine AS runtime
+# Construir a aplicação
+RUN chmod +x gradlew && ./gradlew clean build
+
+# Estágio de runtime
+FROM eclipse-temurin:17-jre-jammy
+
 WORKDIR /app
 
-# Copiar apenas o JAR necessário
+# Copiar o JAR construído
 COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Ajustando a JVM para evitar erros de memória e threads
-ENV JAVA_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=70 -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:CICompilerCount=2 -Xss512k"
-
+# Expor a porta da aplicação
 EXPOSE 8080
 
-CMD ["java", "-jar", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseContainerSupport", "-XX:InitialRAMPercentage=30", "-XX:MaxRAMPercentage=70", "-XX:ParallelGCThreads=2", "-XX:ConcGCThreads=2", "-XX:CICompilerCount=2", "-Xss512k", "app.jar"]
+# Comando de execução
+ENTRYPOINT ["java", "-jar", "app.jar"]
