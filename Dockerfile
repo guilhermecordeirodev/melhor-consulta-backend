@@ -24,5 +24,7 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 # Expor a porta da aplicação
 EXPOSE 8080
 
+ENV JAVA_OPTS="--add-opens java.base/java.time=ALL-UNNAMED"
+
 # Comando de execução
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "$JAVA_OPTS", "-jar", "app.jar"]
