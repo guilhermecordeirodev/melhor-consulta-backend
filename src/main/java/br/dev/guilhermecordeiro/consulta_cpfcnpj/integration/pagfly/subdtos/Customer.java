@@ -3,8 +3,6 @@ package br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 public class Customer {
@@ -13,8 +11,8 @@ public class Customer {
     private String email;
     private String phone;
     private String birthdate;
-    private LocalDateTime createdAt;
-    private LocalDateTime externalRef;
+    private String createdAt;
+    private String externalRef;
     private Document document;
     private Address address;
 }

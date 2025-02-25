@@ -9,7 +9,6 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Ship
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos.Split;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,10 +27,10 @@ public class PagFlyCreateTransactionResponseDTO {
     private boolean traceable;
     private String secureId;
     private String secureUrl;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime paidAt;
-    private LocalDateTime refundedAt;
+    private String createdAt;
+    private String updatedAt;
+    private String paidAt;
+    private String refundedAt;
     private String ip;
     private String externalRef;
     private String authorizationCode;
