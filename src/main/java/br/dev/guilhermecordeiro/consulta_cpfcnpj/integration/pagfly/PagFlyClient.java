@@ -69,13 +69,13 @@ public class PagFlyClient extends FlowProcessing {
     @Override
     public Mono<PagFlyCreateTransactionResponseDTO> generatePaymentMethod(RequestContext o) {
         return generateRequest(o) // Mono<PagFlyCreateTransactionRequestDTO>
-                .doOnNext(requestBody -> {
-                    try {
-                        System.out.println("📤 Enviando request para PagFly: " + objectMapper.writeValueAsString(requestBody));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                })
+//                .doOnNext(requestBody -> {
+//                    try {
+//                        System.out.println("📤 Enviando request para PagFly: " + objectMapper.writeValueAsString(requestBody));
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                })
                 .flatMap(requestBody -> webClient.post()
                         .uri(baseUrl + "/transactions")
                         .headers(httpHeaders -> {
