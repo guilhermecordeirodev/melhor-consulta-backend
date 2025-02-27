@@ -144,10 +144,6 @@ public class PagFlyClient extends FlowProcessing {
                 Customer customer = new Customer();
                 customer.setName(user.getName());
                 customer.setEmail(user.getEmail());
-//                customer.setDocument("{" +
-//                        "\"type\":\"cpf\"," +
-//                        "\"number\":\"25653915017\"" +
-//                        "}");
                 customer.setDocument(document);
 
                 Pix pix = new Pix();
@@ -169,6 +165,7 @@ public class PagFlyClient extends FlowProcessing {
                 r.setItems(items);
 
                 System.out.println(objectMapper.writeValueAsString(r));
+                System.out.println("Passou: "+ r.getCustomer().getDocument().getNumber());
                 sink.next(r);
             } catch (Exception e) {
                 log.error(e.getMessage());
