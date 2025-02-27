@@ -137,16 +137,12 @@ public class PagFlyClient extends FlowProcessing {
                 ProductEntity product = objects.getT2();
                 long value = product.getValue().longValue() * 100;
 
-                Document document = new Document();
-                document.setType("cpf");
-                document.setNumber("25653915017");
-
                 Customer customer = new Customer();
                 customer.setName(user.getName());
                 customer.setEmail(user.getEmail());
                 customer.setDocument("{" +
-                        "\"type\":\"cpf\"," +
                         "\"number\":\"25653915017\"" +
+                        "\"type\":\"cpf\"," +
                         "}");
 
                 Pix pix = new Pix();
