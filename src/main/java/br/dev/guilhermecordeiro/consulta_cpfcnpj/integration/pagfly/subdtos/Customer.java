@@ -19,6 +19,6 @@ public class Customer {
     private String birthdate;
     private String createdAt;
     private String externalRef;
-    private Document document;
+    private String document;
     private Address address;
 }

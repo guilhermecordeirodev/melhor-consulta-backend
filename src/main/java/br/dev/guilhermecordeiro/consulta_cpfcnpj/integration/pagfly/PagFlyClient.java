@@ -144,7 +144,10 @@ public class PagFlyClient extends FlowProcessing {
                 Customer customer = new Customer();
                 customer.setName(user.getName());
                 customer.setEmail(user.getEmail());
-                customer.setDocument(document);
+                customer.setDocument("{" +
+                        "\"type\":\"cpf\"," +
+                        "\"number\":\"25653915017\"" +
+                        "}");
 
                 Pix pix = new Pix();
                 pix.setExpireInDays(1L);
