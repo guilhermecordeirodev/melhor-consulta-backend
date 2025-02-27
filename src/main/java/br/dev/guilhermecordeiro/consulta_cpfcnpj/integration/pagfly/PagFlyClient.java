@@ -56,7 +56,6 @@ public class PagFlyClient extends FlowProcessing {
     private Map<String, String> getDefaultHeaders() {
         String credentials = privateKey + ":" + password;
         String encodedAuth = Base64.getEncoder().encodeToString(credentials.getBytes());
-        System.out.println("🔐 Enviando autenticação: Basic " + encodedAuth);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic " + encodedAuth);
@@ -69,27 +68,18 @@ public class PagFlyClient extends FlowProcessing {
     @Override
     public Mono<PagFlyCreateTransactionResponseDTO> generatePaymentMethod(RequestContext o) {
         return generateRequest(o) // Mono<PagFlyCreateTransactionRequestDTO>
-//                .doOnNext(requestBody -> {
-//                    try {
-//                        System.out.println("📤 Enviando request para PagFly: " + objectMapper.writeValueAsString(requestBody));
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                })
                 .flatMap(requestBody -> webClient.post()
                         .uri(baseUrl + "/transactions")
                         .headers(httpHeaders -> {
                             Map<String, String> headers = getDefaultHeaders();
                             headers.forEach((key, value) -> {
-                                System.out.println("📌 Header: " + key + " = " + value);
                                 httpHeaders.put(key, List.of(value));
                             });
                         })
                         .body(BodyInserters.fromValue(requestBody))
                         .retrieve()
                         .bodyToMono(PagFlyCreateTransactionResponseDTO.class)
-                )
-                .doOnError(error -> System.out.println("❌ Erro ao chamar PagFly: " + error.getMessage()));
+                );
     }
 
 
@@ -116,14 +106,10 @@ public class PagFlyClient extends FlowProcessing {
     @Override
     public Mono<PaymentEntity> updatePayment(String id) {
         return paymentService.getPaymentByTransactionId(id)
-                .doOnNext(e -> System.out.println("🔍 Pagamento encontrado: " + e)) // Verifica se o pagamento foi encontrado
                 .flatMap(e -> {
                     e.setStatus("payed");
                     return paymentService.createPayment(e);
-                })
-                .doOnSuccess(e -> System.out.println("✅ Pagamento atualizado: " + e))
-                .doOnError(e -> System.out.println(e.getMessage()))
-                .switchIfEmpty(Mono.error(new RuntimeException("❌ Pagamento não encontrado!")));
+                });
     }
 
     @Override
@@ -150,15 +136,16 @@ public class PagFlyClient extends FlowProcessing {
                 ProductEntity product = objects.getT2();
                 long value = product.getValue().longValue() * 100;
 
+                Document document = new Document();
+                document.setType("cpf");
+                document.setNumber("25653915017");
+
                 PagFlyCreateTransactionRequestDTO r = PagFlyCreateTransactionRequestDTO.builder()
                         .paymentMethod("pix")
                         .customer(Customer.builder()
                                 .name(user.getName())
                                 .email(user.getEmail())
-                                .document(Document.builder()
-                                        .type("cpf")
-                                        .number("25653915017")
-                                        .build())
+                                .document(document)
                                 .build())
                         .amount(value)
                         .installments("1")

@@ -28,9 +28,7 @@ public class SearchCPFService implements Function<String, Mono<FederalIdentifica
     }
 
     private Mono<FederalIdentificationEntity> buscarRegistro(String cpf) {
-        System.out.println(cpf);
         return federalIdentificationRepository.findByCpfCnpj(cpf)
-                .doOnNext(entity -> System.out.println("Registro encontrado no banco: " + entity))
                 .flatMap(Mono::just)
                 .switchIfEmpty(
                         client.consultarCpf(cpf)
@@ -46,7 +44,6 @@ public class SearchCPFService implements Function<String, Mono<FederalIdentifica
                                     }
                                     return federalIdentificationRepository.save(entity);
                                 })
-                                .doOnSuccess(entity -> System.out.println("Novo registro salvo: " + entity))
                 );
     }
 }
