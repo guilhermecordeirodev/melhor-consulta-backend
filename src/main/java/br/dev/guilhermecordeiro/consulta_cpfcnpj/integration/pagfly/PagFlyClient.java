@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -140,25 +141,28 @@ public class PagFlyClient extends FlowProcessing {
                 document.setType("cpf");
                 document.setNumber("25653915017");
 
-                PagFlyCreateTransactionRequestDTO r = PagFlyCreateTransactionRequestDTO.builder()
-                        .paymentMethod("pix")
-                        .customer(Customer.builder()
-                                .name(user.getName())
-                                .email(user.getEmail())
-                                .document(document)
-                                .build())
-                        .amount(value)
-                        .installments("1")
-                        .pix(Pix.builder()
-                                .expireInDays(1)
-                                .build())
-                        .items(List.of(Item.builder()
-                                .title(product.getName())
-                                .quantity(1)
-                                .unitPrice(value)
-                                .build()))
-                        .build();
+                Customer customer = new Customer();
+                customer.setName(user.getName());
+                customer.setEmail(user.getEmail());
+                customer.setDocument(document);
 
+                Pix pix = new Pix();
+                pix.setExpireInDays(1L);
+
+                List<Item> items = new ArrayList<>();
+                Item item = new Item();
+                item.setTitle(product.getName());
+                item.setQuantity(1);
+                item.setUnitPrice(value);
+                items.add(item);
+
+                PagFlyCreateTransactionRequestDTO r = new PagFlyCreateTransactionRequestDTO();
+                r.setPaymentMethod("pix");
+                r.setCustomer(customer);
+                r.setAmount(value);
+                r.setInstallments("1");
+                r.setPix(pix);
+                r.setItems(items);
 
                 System.out.println(objectMapper.writeValueAsString(r));
                 sink.next(r);

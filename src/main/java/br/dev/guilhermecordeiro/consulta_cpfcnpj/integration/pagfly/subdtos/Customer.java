@@ -3,12 +3,14 @@ package br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.pagfly.subdtos;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Customer {
     private Long id;
     private String name;
