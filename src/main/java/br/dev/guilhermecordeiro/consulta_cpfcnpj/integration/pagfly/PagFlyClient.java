@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -77,7 +76,7 @@ public class PagFlyClient extends FlowProcessing {
                                 httpHeaders.put(key, List.of(value));
                             });
                         })
-                        .body(BodyInserters.fromValue(requestBody))
+                        .bodyValue(requestBody)
                         .retrieve()
                         .bodyToMono(PagFlyCreateTransactionResponseDTO.class)
                 );
@@ -127,50 +126,43 @@ public class PagFlyClient extends FlowProcessing {
         return updatePayment(dto.getData().getSecureId()).flatMap(p -> updateOrder(p.getOrderId()));
     }
 
-    private Mono<PagFlyCreateTransactionRequestDTO> generateRequest(RequestContext o) {
+    private Mono<Object> generateRequest(RequestContext o) {
         return Mono.zip(
                 userRepository.findById(o.getUserId()),
                 productRepository.findById(o.getProductId())
-        ).handle((objects, sink) -> {
-            try {
-                UserEntity user = objects.getT1();
-                ProductEntity product = objects.getT2();
-                long value = product.getValue().longValue() * 100;
+        ).flatMap(objects -> {
+            UserEntity user = objects.getT1();
+            ProductEntity product = objects.getT2();
+            long value = product.getValue().longValue() * 100;
 
-                Document document = new Document();
-                document.setNumber("25653915017");
-                document.setType("cpf");
+            Document document = new Document();
+            document.setNumber("25653915017");
+            document.setType("cpf");
 
-                Customer customer = new Customer();
-                customer.setName(user.getName());
-                customer.setEmail(user.getEmail());
-                customer.setDocument(document);
+            Customer customer = new Customer();
+            customer.setName(user.getName());
+            customer.setEmail(user.getEmail());
+            customer.setDocument(document);
 
-                Pix pix = new Pix();
-                pix.setExpireInDays(1L);
+            Pix pix = new Pix();
+            pix.setExpireInDays(1L);
 
-                List<Item> items = new ArrayList<>();
-                Item item = new Item();
-                item.setTitle(product.getName());
-                item.setQuantity(1);
-                item.setUnitPrice(value);
-                items.add(item);
+            List<Item> items = new ArrayList<>();
+            Item item = new Item();
+            item.setTitle(product.getName());
+            item.setQuantity(1);
+            item.setUnitPrice(value);
+            items.add(item);
 
-                PagFlyCreateTransactionRequestDTO r = new PagFlyCreateTransactionRequestDTO();
-                r.setPaymentMethod("pix");
-                r.setCustomer(customer);
-                r.setAmount(value);
-                r.setInstallments("1");
-                r.setPix(pix);
-                r.setItems(items);
+            PagFlyCreateTransactionRequestDTO r = new PagFlyCreateTransactionRequestDTO();
+            r.setPaymentMethod("pix");
+            r.setCustomer(customer);
+            r.setAmount(value);
+            r.setInstallments("1");
+            r.setPix(pix);
+            r.setItems(items);
 
-                System.out.println(objectMapper.writeValueAsString(r));
-                System.out.println("Passou: "+ r.getCustomer().getDocument().getNumber());
-                sink.next(r);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                sink.error(e);
-            }
+            return Mono.just((Object) r);
         });
     }
 
