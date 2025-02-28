@@ -1,9 +1,6 @@
 name: CI/CD - Build & Push Backend Image to GHCR
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       version:
@@ -76,4 +73,4 @@ jobs:
           no-cache: true  # <- Desativa completamente o cache
           tags: |
             ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:latest
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
+            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:${{ github.event.inputs.version }}
