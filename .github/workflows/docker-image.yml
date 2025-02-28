@@ -68,13 +68,16 @@ jobs:
             git push origin v${{ env.version }}
           fi
 
-      - name: Construir e Push da imagem
+      - name: Construir e Push da imagem (Sem Cache)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          no-cache: true # <- Força a build sem cache
+          cache-from: type=local,src=/dev/null # <- Remove fontes de cache
+          cache-to: type=local,dest=/dev/null # <- Impede que o cache seja salvo
           tags: |
             ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:latest
             ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:v${{ env.version }}
