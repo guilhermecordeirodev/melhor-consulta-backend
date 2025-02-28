@@ -21,8 +21,6 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -37,36 +35,36 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: Obter versão automática
-        id: version
-        run: |
-          if [[ -n "${{ github.event.inputs.version }}" ]]; then
-            VERSION=${{ github.event.inputs.version }}
-          else
-            LAST_VERSION=$(git tag --sort=-v:refname | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+      # - name: Obter versão automática
+      #   id: version
+      #   run: |
+      #     if [[ -n "${{ github.event.inputs.version }}" ]]; then
+      #       VERSION=${{ github.event.inputs.version }}
+      #     else
+      #       LAST_VERSION=$(git tag --sort=-v:refname | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
 
-            if [[ -z "$LAST_VERSION" ]]; then
-              VERSION="1.0.0"
-            else
-              IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
-              PATCH=$((PATCH + 1))
-              VERSION="$MAJOR.$MINOR.$PATCH"
-            fi
-          fi
+      #       if [[ -z "$LAST_VERSION" ]]; then
+      #         VERSION="1.0.0"
+      #       else
+      #         IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
+      #         PATCH=$((PATCH + 1))
+      #         VERSION="$MAJOR.$MINOR.$PATCH"
+      #       fi
+      #     fi
 
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "Versão definida: $VERSION"
+      #     echo "version=$VERSION" >> $GITHUB_ENV
+      #     echo "Versão definida: $VERSION"
 
-      - name: Criar tag no repositório (se ainda não existir)
-        run: |
-          if git rev-parse "v${{ env.version }}" >/dev/null 2>&1; then
-            echo "Tag v${{ env.version }} já existe. Pulando criação."
-          else
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git config --global user.name "github-actions[bot]"
-            git tag v${{ env.version }}
-            git push origin v${{ env.version }}
-          fi
+      # - name: Criar tag no repositório (se ainda não existir)
+      #   run: |
+      #     if git rev-parse "v${{ env.version }}" >/dev/null 2>&1; then
+      #       echo "Tag v${{ env.version }} já existe. Pulando criação."
+      #     else
+      #       git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #       git config --global user.name "github-actions[bot]"
+      #       git tag v${{ env.version }}
+      #       git push origin v${{ env.version }}
+      #     fi
 
       - name: Construir e Push da imagem (Sem Cache)
         uses: docker/build-push-action@v5
@@ -78,4 +76,4 @@ jobs:
           no-cache: true  # <- Desativa completamente o cache
           tags: |
             ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:latest
-            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:v${{ env.version }}
+            ghcr.io/${{ github.repository_owner }}/melhorconsulta-api:${{ github.event.inputs.imageVersion }}
