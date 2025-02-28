@@ -10,6 +10,7 @@ public class ConsultaCpfcnpjApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ConsultaCpfcnpjApplication.class, args);
+		System.out.println("INICIOU A APLICAÇÃO");
 	}
 
 }

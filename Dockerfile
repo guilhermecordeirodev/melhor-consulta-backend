@@ -3,15 +3,18 @@ FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-# Copiar arquivos do Gradle primeiro para aproveitar o cache de camadas
+# Copiar apenas arquivos essenciais primeiro para maximizar cache útil
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
-COPY src src
 
-# Construir a aplicação
-RUN chmod +x gradlew && ./gradlew clean build
+# Baixar dependências primeiro para evitar re-build desnecessário
+RUN chmod +x gradlew && ./gradlew dependencies
+
+# Agora copiamos o código-fonte e rodamos a build
+COPY src src
+RUN ./gradlew clean build
 
 # Estágio de runtime
 FROM amazoncorretto:17

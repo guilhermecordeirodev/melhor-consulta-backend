@@ -1,1 +1,1 @@
-rootProject.name = "consulta-cpfcnpj"
+rootProject.name = "melhorconsulta-api"

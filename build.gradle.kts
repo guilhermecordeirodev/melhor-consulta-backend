@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "br.dev.guilhermecordeiro"
-version = "1.0.16"
+version = "1.0.26"
 
 java {
 	toolchain {
