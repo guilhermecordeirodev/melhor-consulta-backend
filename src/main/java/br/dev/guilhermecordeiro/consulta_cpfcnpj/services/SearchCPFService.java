@@ -5,6 +5,9 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.CredlinkCl
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.FederalIdentificationRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.utils.StringMasker;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,9 @@ public class SearchCPFService implements Function<String, Mono<FederalIdentifica
                                     entity.setDadosFromResponse(response);
                                     try {
                                         objectMapper.registerModule(new JavaTimeModule());
+                                        objectMapper
+                                                .coercionConfigFor(LogicalType.POJO)
+                                                .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
                                         String jsonResponse = objectMapper.writeValueAsString(response);
                                         entity.setDados(jsonResponse);
                                     } catch (Exception e) {
