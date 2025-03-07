@@ -5,8 +5,6 @@ import br.dev.guilhermecordeiro.consulta_cpfcnpj.entities.OrderEntity;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.enums.StatusOrder;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.OrderRepository;
 import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.ProductRepository;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserProductRepository;
-import br.dev.guilhermecordeiro.consulta_cpfcnpj.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,10 +16,6 @@ public class OrderService {
     private OrderRepository repository;
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserProductRepository userProductRepository;
-    @Autowired
     private ProductRepository productRepository;
 
     public Mono<Object> createOrder(RequestContext dto) {
@@ -30,6 +24,7 @@ public class OrderService {
                         .status(StatusOrder.PENDENTE)
                         .federalIdRequest(dto.getFederalId())
                         .userId(dto.getUserId())
+                        .productId(dto.getProductId())
                 .build()));
     }
 

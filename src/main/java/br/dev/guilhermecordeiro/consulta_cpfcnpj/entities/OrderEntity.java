@@ -26,4 +26,6 @@ public class OrderEntity {
     private PaymentEntity payment;
 
     private String userId;
+
+    private String productId;
 }

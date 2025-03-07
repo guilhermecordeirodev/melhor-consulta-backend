@@ -114,11 +114,26 @@ public class PagFlyClient extends FlowProcessing {
 
     @Override
     public Mono<OrderEntity> updateOrder(String id) {
-        return orderService.getOrderById(id).flatMap(orderEntity -> {
-            orderEntity.setStatus(StatusOrder.PAGO);
-            return orderService.saveOrder(orderEntity);
-        });
+        return orderService.getOrderById(id)
+                .flatMap(orderEntity ->
+                        userRepository.findById(orderEntity.getUserId())
+                                .flatMap(user ->
+                                        productRepository.findById(orderEntity.getProductId())
+                                                .flatMap(product -> {
+                                                    user.setQuantityOfSearch(
+                                                            user.getQuantityOfSearch() + product.getQuantityOfRequests()
+                                                    );
+                                                    return userRepository.save(user)
+                                                            .then(Mono.fromSupplier(() -> {
+                                                                orderEntity.setStatus(StatusOrder.PAGO);
+                                                                return orderEntity;
+                                                            }));
+                                                })
+                                )
+                                .flatMap(orderService::saveOrder)
+                );
     }
+
 
     @Override
     public Mono<OrderEntity> callback(Object callback) {
