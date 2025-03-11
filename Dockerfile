@@ -22,7 +22,7 @@ FROM amazoncorretto:17
 WORKDIR /app
 
 # Copiar o JAR construído
-COPY --from=builder /app/build/libs/melhorconsulta-api-1.0.28.jar app.jar
+COPY --from=builder /app/build/libs/melhorconsulta-api-1.0.29.jar app.jar
 
 # Expor a porta da aplicação
 EXPOSE 8080
