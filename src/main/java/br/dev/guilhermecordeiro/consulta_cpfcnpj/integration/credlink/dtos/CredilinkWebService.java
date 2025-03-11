@@ -1,5 +1,6 @@
 package br.dev.guilhermecordeiro.consulta_cpfcnpj.integration.credlink.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class CredilinkWebService {
     @JsonProperty("consulta_bancos")
     private ConsultaBancos consultaBancos;
     private Comercial comercial;
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<Renda> rendapf;
     private Map<String, Object> parentes;
     @JsonProperty("consulta_ccf619")
