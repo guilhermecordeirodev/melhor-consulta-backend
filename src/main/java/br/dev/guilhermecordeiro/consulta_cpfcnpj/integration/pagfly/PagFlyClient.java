@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -152,7 +153,7 @@ public class PagFlyClient extends FlowProcessing {
         ).flatMap(objects -> {
             UserEntity user = objects.getT1();
             ProductEntity product = objects.getT2();
-            long value = product.getValue().longValue() * 100;
+            long value = product.getValue().multiply(BigDecimal.valueOf(100.00)).longValue();
 
             Document document = new Document();
             document.setNumber("25653915017");
