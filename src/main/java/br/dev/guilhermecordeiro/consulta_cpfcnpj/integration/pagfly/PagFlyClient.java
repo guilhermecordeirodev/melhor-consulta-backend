@@ -157,6 +157,7 @@ public class PagFlyClient extends FlowProcessing {
             Customer customer = new Customer();
             customer.setName(user.getName());
             customer.setEmail(user.getEmail());
+            customer.setPhone("21999999999");
             customer.setDocument(document);
 
             Pix pix = new Pix();
@@ -176,7 +177,11 @@ public class PagFlyClient extends FlowProcessing {
             r.setInstallments("1");
             r.setPix(pix);
             r.setItems(items);
-
+            try {
+                System.out.println(objectMapper.writeValueAsString(r));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
             return Mono.just((Object) r);
         });
     }
