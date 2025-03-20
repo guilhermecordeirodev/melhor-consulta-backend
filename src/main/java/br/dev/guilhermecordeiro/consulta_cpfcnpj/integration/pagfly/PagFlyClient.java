@@ -107,7 +107,7 @@ public class PagFlyClient extends FlowProcessing {
     public Mono<PaymentEntity> updatePayment(String id) {
         return paymentService.getPaymentByTransactionId(id)
                 .flatMap(e -> {
-                    e.setStatus("payed");
+                    e.setStatus("paid");
                     return paymentService.createPayment(e);
                 });
     }
@@ -138,7 +138,11 @@ public class PagFlyClient extends FlowProcessing {
     @Override
     public Mono<OrderEntity> callback(Object callback) {
         PagFlyWebhookDTO dto = objectMapper.convertValue(callback, PagFlyWebhookDTO.class);
-        return updatePayment(dto.getData().getSecureId()).flatMap(p -> updateOrder(p.getOrderId()));
+        if (dto.getData().getStatus().equals("paid")) {
+            return updatePayment(dto.getData().getSecureId()).flatMap(p -> updateOrder(p.getOrderId()));
+        } else {
+            return Mono.empty();
+        }
     }
 
     private Mono<Object> generateRequest(RequestContext o) {

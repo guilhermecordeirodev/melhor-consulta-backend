@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers("/auth/google").permitAll()
-                        .pathMatchers("/callback").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/callback").permitAll()
                         .pathMatchers(HttpMethod.GET, "/public/cpf/*", "/public/products").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
